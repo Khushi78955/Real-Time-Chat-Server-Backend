@@ -1,8 +1,8 @@
-console.log("Auth routes loaded");
 import express from "express";
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes.js";
+import conversationRoutes from "./routes/conversation.routes.js";
 import errorHandler from "./middleware/error.middleware.js";
 
 const app = express();
@@ -17,6 +17,7 @@ app.get("/", (req, res) => {
 })
 
 app.use("/auth", authRoutes);
+app.use("/conversations", conversationRoutes);
 app.use(errorHandler);
 
 
