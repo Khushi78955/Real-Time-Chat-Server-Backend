@@ -2,12 +2,15 @@ import app from "./app.js";
 import env from "./config/env.js";
 import logger from "./config/logger.js";
 import { connectDB, disconnectDB } from "./config/db.js";
+import { initializeSocket } from "./socket/index.js";
 
 async function startServer() {
     await connectDB();
+    
     const server = app.listen(env.PORT, () => {
         logger.info(`Server running on port ${env.PORT}`);
     })
+    initializeSocket(server);
 
     const shutdown = async () => {
         logger.info("Shutting Down Server...")
