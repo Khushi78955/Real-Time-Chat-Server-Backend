@@ -13,15 +13,10 @@ const pool = new Pool({
 });
 
 export async function connectDB() {
-    try{
-        const client = await pool.connect();
-        logger.info("PostgresSQL connected");
-        client.release();
+    const client = await pool.connect();
+    logger.info("PostgresSQL connected");
+    client.release();
 
-    } catch(err){
-        logger.error(err);
-        process.exit(1);
-    }   
 }
 
 export async function query(text, params = []) {

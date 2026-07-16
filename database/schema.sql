@@ -21,6 +21,7 @@ CREATE TABLE conversation_participants (
         FOREIGN KEY (conversation_id)
         REFERENCES conversations(id)
         ON DELETE CASCADE,
+
     CONSTRAINT fk_participant
         FOREIGN KEY (user_id)
         REFERENCES users(id)
@@ -30,7 +31,7 @@ CREATE TABLE conversation_participants (
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     conversation_id INT NOT NULL,
-    sender_id INT NOT NULL,
+    sender_id INT,
     text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     delivered_at TIMESTAMP,
@@ -40,10 +41,28 @@ CREATE TABLE messages (
         FOREIGN KEY (conversation_id)
         REFERENCES conversations(id)
         ON DELETE CASCADE,
+
     CONSTRAINT fk_message_sender
         FOREIGN KEY (sender_id)
         REFERENCES users(id)
+        ON DELETE SET NULL
 );
+
+
+CREATE TABLE refresh_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    token_hash TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    revoked_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_refresh_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
 
 
 CREATE INDEX idx_messages_conversation
@@ -54,3 +73,6 @@ ON messages(sender_id);
 
 CREATE INDEX idx_participants_user
 ON conversation_participants(user_id);
+
+CREATE INDEX idx_refresh_user
+ON refresh_tokens(user_id);

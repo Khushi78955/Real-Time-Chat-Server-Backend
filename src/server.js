@@ -11,10 +11,10 @@ async function startServer() {
 
     const shutdown = async () => {
         logger.info("Shutting Down Server...")
-        server.close = async () => {
+        server.close(async () => {
             await disconnectDB();
             process.exit(0);
-        }
+        });
     }
 
     process.on("SIGINT", shutdown);
