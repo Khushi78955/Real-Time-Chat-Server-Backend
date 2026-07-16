@@ -13,4 +13,7 @@ export const EVENTS = {
 
     USER_ONLINE: "user_online",
     USER_OFFLINE: "user_offline",
+
+    MESSAGE_DELIVERED: "message_delivered",
+    MESSAGE_SEEN: "message_seen",
 };

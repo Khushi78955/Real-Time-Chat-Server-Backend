@@ -76,3 +76,37 @@ export async function getMessages(conversationId, userId) {
 
     return await conversationRepository.getMessages(conversationId);
 }
+
+
+
+export async function markMessageDelivered(messageId, userId) {
+    const message = await conversationRepository.getMessageById(messageId);
+    if(!message){
+        throw new AppError("Message not found", 404);
+    }
+    const participants = await conversationRepository.getConversationParticipants(message.conversation_id);
+    const isParticipant = participants.some(
+        (participant) => participant.user_id === userId
+    )
+    if(!isParticipant){
+        throw new AppError("You are not a participant in this conversation", 403)
+    }
+    return await conversationRepository.markMessageDelivered(messageId);
+}
+
+
+export async function markMessageSeen(messageId, userId) {
+    const message = await conversationRepository.getMessageById(messageId);
+    if(!message){
+        throw new AppError("Message not found", 404);
+    }
+    const participants = await conversationRepository.getConversationParticipants(message.conversation_id);
+    const isParticipant = participants.some(
+        (participant) => participant.user_id === userId
+    )
+    if(!isParticipant){
+        throw new AppError("You are not a participant in this conversation", 403)
+    }
+    return await conversationRepository.markMessageSeen(messageId)
+}
+

@@ -13,4 +13,37 @@ export default function registerMessageHandler(io, socket){
             })
         }
     })
+
+    socket.on(EVENTS.MESSAGE_DELIVERED, async({messageId}) => {
+        try{
+            const message = await conversationService.markMessageDelivered(messageId, socket.user.id);
+            io.to(`conversation:${message.conversation_id}`).emit(
+                EVENTS.MESSAGE_DELIVERED,
+                message
+            )
+        } catch(err){
+            socket.emit("error", {
+                message: err.message
+            })
+        }
+    })
+
+
+    socket.on(EVENTS.MESSAGE_SEEN, async ({messageId}) => {
+        try{
+            const message = await conversationService.markMessageSeen(messageId, socket.user.id);
+            io.to(`conversation:${message.conversation_id}`).emit(
+                EVENTS.MESSAGE_SEEN,
+                message
+            )
+        } catch(err){
+            socket.emit("error", {
+                message: err.message
+            })
+        }
+    })
 }
+
+
+
+

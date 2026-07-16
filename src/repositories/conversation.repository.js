@@ -111,3 +111,43 @@ export async function findConversationBetweenUsers(userOneId, userTwoId) {
 
     return result.rows[0];
 }
+
+
+export async function markMessageDelivered(messageId){
+    const result = await query(
+        `
+        UPDATE messages
+        SET delivered_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING *;
+        `,
+        [messageId]
+    )
+    return result.rows[0];
+}
+
+export async function markMessageSeen(messageId){
+    const result = await query(
+        `
+        UPDATE messages
+        SET seen_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING *;
+        `,
+        [messageId]
+    )
+    return result.rows[0];
+}
+
+
+export async function getMessageById(messageId) {
+    const result = await query(
+        `
+        SELECT *
+        FROM messages
+        WHERE id = $1;
+        `,
+        [messageId]
+    );
+    return result.rows[0];
+}
