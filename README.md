@@ -1,54 +1,66 @@
 # 💬 Real-Time Chat Server Backend
 
-A production-inspired real-time chat backend built with **Node.js, Express, PostgreSQL, Socket.IO, and JWT Authentication**.
+A production-inspired **real-time chat backend** built with **Node.js, Express, PostgreSQL, Socket.IO, JWT Authentication, and Docker**.
 
-This project demonstrates how modern chat applications handle authentication, conversations, messaging, typing indicators, online presence, delivery receipts, and read receipts using a clean layered architecture.
+This project demonstrates how modern chat applications handle authentication, persistent conversations, real-time messaging, presence tracking, typing indicators, delivery receipts, and read receipts using a clean layered architecture.
 
 ---
 
-## 🚀 Features
+# 🚀 Features
 
-### Authentication
+## Authentication
 
-- User Registration
-- User Login
-- JWT Access Tokens
-- Refresh Token Rotation
-- Logout
-- Protected Routes
+- User registration
+- User login
+- JWT access token authentication
+- Refresh token rotation
+- Secure refresh token storage
+- Logout functionality
+- Protected REST routes
+- Protected Socket.IO connections
 
-### Conversations
+---
+
+## Conversations
 
 - Create one-to-one conversations
 - Prevent duplicate conversations
-- Retrieve all user conversations
+- Retrieve user's conversations
 - Participant authorization
+- Persistent conversation storage
 
-### Messaging
+---
+
+## Messaging
 
 - Send messages
+- Store messages permanently in PostgreSQL
 - Retrieve conversation history
-- Store messages in PostgreSQL
+- Sender attribution
+- Message timestamps
 
-### Real-Time Features
+---
 
-- Socket.IO Authentication
-- Join/Leave Conversation Rooms
-- Real-Time Messaging
-- Typing Indicators
-- Online / Offline Presence
-- Message Delivery Receipts
-- Message Read Receipts
+## Real-Time Features (Socket.IO)
 
-### Security
+- JWT authentication during socket handshake
+- Real-time messaging
+- Join/leave conversation rooms
+- Online/offline presence
+- Typing indicators
+- Message delivery receipts
+- Message read receipts
 
-- Password Hashing using bcrypt
-- JWT Authentication
-- Refresh Token Hashing
-- Protected REST APIs
-- Protected Socket Connections
-- Input Validation with Zod
-- Global Error Handling
+---
+
+## Security
+
+- Password hashing using bcrypt
+- Refresh token hashing
+- JWT-based authorization
+- Request validation using Zod
+- Centralized error handling
+- Environment-based configuration
 
 ---
 
@@ -56,42 +68,95 @@ This project demonstrates how modern chat applications handle authentication, co
 
 | Technology | Purpose |
 |------------|---------|
-| Node.js | Runtime |
-| Express.js | REST API |
-| PostgreSQL | Database |
+| Node.js | Backend runtime |
+| Express.js | REST API framework |
+| PostgreSQL | Persistent database |
 | Socket.IO | Real-time communication |
 | JWT | Authentication |
 | bcrypt | Password hashing |
-| Zod | Validation |
+| Zod | Input validation |
 | Docker | Containerization |
 | Pino | Logging |
 
 ---
 
+# 🏗 Architecture
+
+The project follows a layered backend architecture.
+
+```
+Client
+  |
+  |
+Routes
+  |
+  |
+Controllers
+  |
+  |
+Services
+  |
+  |
+Repositories
+  |
+  |
+PostgreSQL
+```
+
+Socket.IO follows a similar structure:
+
+```
+Socket Connection
+        |
+        |
+Socket Handlers
+        |
+        |
+Services
+        |
+        |
+Repositories
+        |
+        |
+Database
+```
+
+---
+
 # 📂 Project Structure
 
-```text
-.
-├── database/
+```
+Real-Time-Chat-Server-Backend
+│
+├── database
 │   └── schema.sql
 │
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── errors/
-│   ├── middleware/
-│   ├── repositories/
-│   ├── routes/
-│   ├── services/
-│   ├── socket/
-│   │   ├── handlers/
+├── src
+│   │
+│   ├── config
+│   │
+│   ├── controllers
+│   │
+│   ├── errors
+│   │
+│   ├── middleware
+│   │
+│   ├── repositories
+│   │
+│   ├── routes
+│   │
+│   ├── services
+│   │
+│   ├── socket
+│   │   ├── handlers
 │   │   ├── auth.js
 │   │   ├── events.js
 │   │   ├── index.js
 │   │   └── onlineUsers.js
 │   │
-│   ├── utils/
-│   ├── validators/
+│   ├── utils
+│   │
+│   ├── validators
 │   │
 │   ├── app.js
 │   └── server.js
@@ -104,12 +169,14 @@ This project demonstrates how modern chat applications handle authentication, co
 
 ---
 
-# 🗄 Database Schema
+# 🗄 Database Design
 
-## users
+## Users
+
+Stores registered users.
 
 | Column | Type |
-|---------|------|
+|---|---|
 | id | SERIAL |
 | email | VARCHAR |
 | password_hash | TEXT |
@@ -118,28 +185,34 @@ This project demonstrates how modern chat applications handle authentication, co
 
 ---
 
-## conversations
+## Conversations
+
+Stores chat conversations.
 
 | Column | Type |
-|---------|------|
+|---|---|
 | id | SERIAL |
 | created_at | TIMESTAMP |
 
 ---
 
-## conversation_participants
+## Conversation Participants
+
+Maps users to conversations.
 
 | Column | Type |
-|---------|------|
+|---|---|
 | conversation_id | INT |
 | user_id | INT |
 
 ---
 
-## messages
+## Messages
+
+Stores all messages.
 
 | Column | Type |
-|---------|------|
+|---|---|
 | id | SERIAL |
 | conversation_id | INT |
 | sender_id | INT |
@@ -150,10 +223,12 @@ This project demonstrates how modern chat applications handle authentication, co
 
 ---
 
-## refresh_tokens
+## Refresh Tokens
+
+Stores refresh tokens securely.
 
 | Column | Type |
-|---------|------|
+|---|---|
 | id | SERIAL |
 | user_id | INT |
 | token_hash | TEXT |
@@ -166,100 +241,106 @@ This project demonstrates how modern chat applications handle authentication, co
 
 ## Authentication
 
-| Method | Endpoint |
-|----------|----------------|
-| POST | /auth/register |
-| POST | /auth/login |
-| POST | /auth/refresh |
-| POST | /auth/logout |
-| GET | /auth/me |
+| Method | Endpoint | Description |
+|-|-|-|
+| POST | `/auth/register` | Register user |
+| POST | `/auth/login` | Login user |
+| POST | `/auth/refresh` | Refresh access token |
+| POST | `/auth/logout` | Logout user |
+| GET | `/auth/me` | Get current user |
 
 ---
 
 ## Conversations
 
-| Method | Endpoint |
-|----------|---------------------------|
-| POST | /conversations |
-| GET | /conversations |
-| POST | /conversations/:id/messages |
-| GET | /conversations/:id/messages |
+| Method | Endpoint | Description |
+|-|-|-|
+| POST | `/conversations` | Create conversation |
+| GET | `/conversations` | Get user conversations |
+| POST | `/conversations/:id/messages` | Send message |
+| GET | `/conversations/:id/messages` | Get messages |
 
 ---
 
-# ⚡ Socket Events
+# ⚡ Socket.IO Events
 
 ## Client → Server
 
-```text
-join_conversation
-leave_conversation
-send_message
-typing
-stop_typing
-message_delivered
-message_seen
-```
+| Event | Purpose |
+|-|-|
+| `join_conversation` | Join chat room |
+| `leave_conversation` | Leave chat room |
+| `send_message` | Send message |
+| `typing` | Start typing |
+| `stop_typing` | Stop typing |
+| `message_delivered` | Mark message delivered |
+| `message_seen` | Mark message seen |
 
 ---
 
 ## Server → Client
 
-```text
-receive_message
-typing
-stop_typing
-user_online
-user_offline
-message_delivered
-message_seen
-```
+| Event | Purpose |
+|-|-|
+| `receive_message` | New message received |
+| `user_online` | User connected |
+| `user_offline` | User disconnected |
+| `typing` | User typing |
+| `stop_typing` | User stopped typing |
+| `message_delivered` | Delivery update |
+| `message_seen` | Read update |
 
 ---
 
 # 🔐 Authentication Flow
 
-```text
+```
 Register
-      │
-      ▼
+   |
+   |
 Login
-      │
-      ▼
+   |
+   |
 Access Token + Refresh Token
-      │
-      ├──────────────► REST APIs
-      │
-      └──────────────► Socket.IO Authentication
+   |
+   |
+REST API / Socket.IO Handshake
+   |
+   |
+Authenticated User
 ```
 
 ---
 
-# 🐳 Running with Docker
+# 🐳 Running With Docker
 
-Clone the repository.
+## Clone repository
 
 ```bash
 git clone <repository-url>
 ```
 
-Move into the project.
+Move into project:
 
 ```bash
 cd Real-Time-Chat-Server-Backend
 ```
 
-Create a `.env` file using `.env.example`.
+Create environment file:
 
-Build and start the containers.
+```bash
+cp .env.example .env.docker
+```
+
+Start containers:
 
 ```bash
 docker compose up --build
 ```
 
-The API will be available at:
+Application runs on:
 
-```text
+```
 http://localhost:3000
 ```
 
@@ -267,15 +348,28 @@ http://localhost:3000
 
 # 💻 Running Locally
 
-Install dependencies.
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Create a `.env` file using `.env.example`.
+Create `.env` file:
 
-Start the development server.
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=chat_db
+
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+```
+
+Start development server:
 
 ```bash
 npm run dev
@@ -283,76 +377,33 @@ npm run dev
 
 ---
 
-# 🌍 Environment Variables
+# 🌎 Environment Variables
 
-```env
-PORT=
-
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-
-JWT_ACCESS_SECRET=
-JWT_REFRESH_SECRET=
-```
+| Variable | Description |
+|-|-|
+| PORT | Server port |
+| DB_HOST | Database host |
+| DB_PORT | Database port |
+| DB_USER | Database username |
+| DB_PASSWORD | Database password |
+| DB_NAME | Database name |
+| JWT_ACCESS_SECRET | Access token secret |
+| JWT_REFRESH_SECRET | Refresh token secret |
 
 ---
 
-# 🧠 Architecture
+# 📌 Future Improvements
 
-The project follows a layered architecture.
-
-```text
-Client
-   │
-   ▼
-Routes
-   │
-   ▼
-Controllers
-   │
-   ▼
-Services
-   │
-   ▼
-Repositories
-   │
-   ▼
-PostgreSQL
-```
-
-Socket.IO follows a similar structure.
-
-```text
-Socket
-   │
-   ▼
-Handlers
-   │
-   ▼
-Services
-   │
-   ▼
-Repositories
-```
-
----
-
-# 📈 Future Improvements
-
-- Group Chats
-- Message Editing
-- Message Deletion
-- File Sharing
-- Image Uploads
-- Push Notifications
-- Redis Adapter
-- Horizontal Scaling
-- End-to-End Encryption
-- Rate Limiting
-- Unit & Integration Tests
+- Group conversations
+- File and image sharing
+- Message editing
+- Message deletion
+- Redis Socket.IO adapter
+- Horizontal scaling
+- Rate limiting
+- Push notifications
+- End-to-end encryption
+- Automated testing
 
 ---
 
@@ -360,4 +411,4 @@ Repositories
 
 **Khushi**
 
-Built as a backend engineering project to learn authentication, real-time communication, PostgreSQL, Socket.IO, Docker, and clean architecture.
+Backend project demonstrating real-time communication, authentication systems, PostgreSQL design, Socket.IO architecture, and Docker-based deployment.
